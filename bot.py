@@ -1,7 +1,7 @@
+import asyncio
 from telegram import Update
 from telegram.ext import Application, CommandHandler, CallbackContext, MessageHandler, filters
-import openai
-import os
+import requests
 import logging
 
 # Ton token Telegram
@@ -12,9 +12,6 @@ MISTRAL_API_KEY = "h7NG4OH6aBj9Nww2oUfdLQuyTvVMsB4r"
 # ID du groupe Telegram
 CHAT_ID = "-1001267100130"
 
-# Initialize OpenAI API
-openai.api_key = MISTRAL_API_KEY
-
 # Test de l'initialisation
 def test_initialization():
     if not TOKEN or not MISTRAL_API_KEY:
@@ -23,26 +20,19 @@ def test_initialization():
     print("Initialisation réussie !")
     return True
 
-# Vérifier l'initialisation avant de lancer le bot
-if __name__ == "__main__":
-    if test_initialization():
-        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-        logger = logging.getLogger(__name__)
-        main()
-
-
 async def generate_compliment():
     """Génère un compliment avec l'IA Mistral."""
-    prompt = "Génère un compliment sincère, chaleureux et mignon, non genré, pour une personne."
-
-    response = openai.Completion.create(
-        engine="mistral-7b",
-        prompt=prompt,
-        max_tokens=60
-    )
-    
-    compliment = response.choices[0].text.strip()
-    return compliment
+    headers = {
+        "Authorization": f"Bearer {MISTRAL_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "model": "mistral-7b",
+        "prompt": "Génère un compliment sincère, chaleureux et mignon, non genré, pour une personne.",
+        "max_tokens": 60
+    }
+    response = requests.post("https://api.mistral.ai/v1/completions", json=data, headers=headers)
+    return response.json()["choices"][0]["text"].strip()
 
 async def send_compliment(update: Update, context: CallbackContext):
     """Envoie un compliment en réponse à la commande /weewoo."""
@@ -62,6 +52,7 @@ async def handle_message(update: Update, context: CallbackContext):
         await update.message.reply_text(message)
 
 async def main():
+    """Démarre le bot Telegram."""
     application = Application.builder().token(TOKEN).build()
 
     # Ajouter la gestion des messages
@@ -73,10 +64,9 @@ async def main():
     # Lancer l'application
     await application.run_polling()
 
-# Lancer le bot sans asyncio.run(), l'environnement gère déjà la boucle d'événements
 if __name__ == "__main__":
-    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-    logger = logging.getLogger(__name__)
+    if test_initialization():
+        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+        logger = logging.getLogger(__name__)
 
-    # Appel direct de la fonction main, sans asyncio.run()
-    main()  # La boucle d'événements est gérée par la bibliothèque telegram.ext
+        asyncio.run(main())  # ✅ Correction ici !
