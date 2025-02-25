@@ -1,7 +1,8 @@
-import logging
-import openai
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
+from telegram.ext import Application, CommandHandler, CallbackContext, MessageHandler, filters
+import openai
+import os
+import logging
 
 # Ton token Telegram
 TOKEN = "7468439207:AAGlsyi_i0A40TtXA_rJX_c0M84bQUYYbHE"
@@ -14,28 +15,25 @@ CHAT_ID = "-1001267100130"
 # Initialize OpenAI API
 openai.api_key = MISTRAL_API_KEY
 
-# Fonction pour générer un compliment avec Mistral
 async def generate_compliment():
     """Génère un compliment avec l'IA Mistral."""
-    prompt = "Génère un compliment sincère, chaleureux et mignon, non genré, pour une personne." 
+    prompt = "Génère un compliment sincère, chaleureux et mignon, non genré, pour une personne."
 
     response = openai.Completion.create(
-        engine="mistral-7b", 
-        prompt=prompt, 
+        engine="mistral-7b",
+        prompt=prompt,
         max_tokens=60
     )
     
     compliment = response.choices[0].text.strip()
     return compliment
 
-# Fonction pour envoyer un compliment en réponse à la commande /weewoo
 async def send_compliment(update: Update, context: CallbackContext):
     """Envoie un compliment en réponse à la commande /weewoo."""
     compliment = await generate_compliment()
     message = f"🚨🚓🚨WEE WOO !!! POLICE DU SELF-LOVE !!\n{compliment}"
     await update.message.reply_text(message)
 
-# Fonction pour gérer l'envoi automatique des compliments tous les 500 messages
 async def handle_message(update: Update, context: CallbackContext):
     """Envoie un compliment tous les 500 messages."""
     user_message_count = context.bot_data.get('message_count', 0)
@@ -47,7 +45,6 @@ async def handle_message(update: Update, context: CallbackContext):
         message = f"🚨🚨POLICE DU SELF-LOVE ! INTERVENTION SURPRISE !\n{compliment}"
         await update.message.reply_text(message)
 
-# Fonction principale pour démarrer le bot
 async def main():
     application = Application.builder().token(TOKEN).build()
 
@@ -60,7 +57,7 @@ async def main():
     # Lancer l'application
     await application.run_polling()
 
-# Lancer le bot en utilisant asyncio.run()
+# Lancer le bot sans asyncio.run(), l'environnement gère déjà la boucle d'événements
 if __name__ == "__main__":
     import asyncio
-    asyncio.run(main())
+    asyncio.get_event_loop().run_until_complete(main())
