@@ -1,3 +1,5 @@
+import openai
+
 # Ton token Telegram
 TOKEN = "7468439207:AAGlsyi_i0A40TtXA_rJX_c0M84bQUYYbHE"
 # Ton API Key Mistral
