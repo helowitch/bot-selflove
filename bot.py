@@ -1,5 +1,9 @@
 from telegram import Update
+from telegram.ext import Application, CommandHandler, CallbackContext, MessageHandler, filters
 import openai
+import random
+import asyncio
+import os
 
 # Ton token Telegram
 TOKEN = "7468439207:AAGlsyi_i0A40TtXA_rJX_c0M84bQUYYbHE"
