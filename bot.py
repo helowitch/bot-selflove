@@ -15,6 +15,22 @@ CHAT_ID = "-1001267100130"
 # Initialize OpenAI API
 openai.api_key = MISTRAL_API_KEY
 
+# Test de l'initialisation
+def test_initialization():
+    if not TOKEN or not MISTRAL_API_KEY:
+        print("Erreur: Token ou clé API manquants !")
+        return False
+    print("Initialisation réussie !")
+    return True
+
+# Vérifier l'initialisation avant de lancer le bot
+if __name__ == "__main__":
+    if test_initialization():
+        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+        logger = logging.getLogger(__name__)
+        main()
+
+
 async def generate_compliment():
     """Génère un compliment avec l'IA Mistral."""
     prompt = "Génère un compliment sincère, chaleureux et mignon, non genré, pour une personne."
@@ -59,5 +75,8 @@ async def main():
 
 # Lancer le bot sans asyncio.run(), l'environnement gère déjà la boucle d'événements
 if __name__ == "__main__":
-    import asyncio
-    asyncio.get_event_loop().run_until_complete(main())
+    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
+    # Appel direct de la fonction main, sans asyncio.run()
+    main()  # La boucle d'événements est gérée par la bibliothèque telegram.ext
