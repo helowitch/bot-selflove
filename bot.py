@@ -1,3 +1,4 @@
+from telegram import Update
 import openai
 
 # Ton token Telegram
