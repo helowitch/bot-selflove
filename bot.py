@@ -60,7 +60,7 @@ async def main():
     # Lancer l'application
     await application.run_polling()
 
-# Lancer le bot en utilisant l'event loop de l'application
+# Lancer le bot en utilisant asyncio.run()
 if __name__ == "__main__":
     import asyncio
-    asyncio.get_event_loop().run_until_complete(main())
+    asyncio.run(main())
