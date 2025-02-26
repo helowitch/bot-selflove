@@ -32,24 +32,32 @@ async def generate_compliment():
         "max_tokens": 60
     }
     response = requests.post("https://api.mistral.ai/v1/completions", json=data, headers=headers)
+    response.raise_for_status()  # Vérifie les erreurs HTTP
     return response.json()["choices"][0]["text"].strip()
 
 async def send_compliment(update: Update, context: CallbackContext):
     """Envoie un compliment en réponse à la commande /weewoo."""
-    compliment = await generate_compliment()
-    message = f"🚨🚓🚨WEE WOO !!! POLICE DU SELF-LOVE !!\n{compliment}"
-    await update.message.reply_text(message)
+    try:
+        compliment = await generate_compliment()
+        message = f"🚨🚓🚨WEE WOO !!! POLICE DU SELF-LOVE !!\n{compliment}"
+        await update.message.reply_text(message)
+    except Exception as e:
+        logging.error(f"Erreur lors de l'envoi du compliment : {e}")
 
 async def handle_message(update: Update, context: CallbackContext):
     """Envoie un compliment tous les 500 messages."""
-    user_message_count = context.bot_data.get('message_count', 0)
-    user_message_count += 1
-    context.bot_data['message_count'] = user_message_count
+    if 'message_count' not in context.bot_data:
+        context.bot_data['message_count'] = 0
 
-    if user_message_count % 500 == 0:
-        compliment = await generate_compliment()
-        message = f"🚨🚨POLICE DU SELF-LOVE ! INTERVENTION SURPRISE !\n{compliment}"
-        await update.message.reply_text(message)
+    context.bot_data['message_count'] += 1
+
+    if context.bot_data['message_count'] % 500 == 0:
+        try:
+            compliment = await generate_compliment()
+            message = f"🚨🚨POLICE DU SELF-LOVE ! INTERVENTION SURPRISE !\n{compliment}"
+            await update.message.reply_text(message)
+        except Exception as e:
+            logging.error(f"Erreur lors de l'envoi du compliment : {e}")
 
 async def main():
     """Démarre le bot Telegram."""
@@ -69,4 +77,4 @@ if __name__ == "__main__":
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
         logger = logging.getLogger(__name__)
 
-        asyncio.run(main())  # ✅ Correction ici !
+        asyncio.run(main())
